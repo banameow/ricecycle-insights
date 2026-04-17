@@ -22,6 +22,7 @@ const Sourcing = () => {
   const { deliveries, addDelivery, updateDelivery } = useData();
 
   const [supplierId, setSupplierId] = useState("");
+  const [arrivalTime, setArrivalTime] = useState("");
   const [weight, setWeight] = useState("");
   const [moisture, setMoisture] = useState("");
   const [acidity, setAcidity] = useState("");
@@ -32,7 +33,7 @@ const Sourcing = () => {
     const m = parseFloat(moisture);
     const a = parseFloat(acidity);
 
-    if (!supplierId || isNaN(w) || isNaN(m) || isNaN(a)) {
+    if (!supplierId || !arrivalTime || isNaN(w) || isNaN(m) || isNaN(a)) {
       toast.error(t("Please fill all fields correctly", "กรุณากรอกข้อมูลให้ครบถ้วน"));
       return;
     }
@@ -40,17 +41,20 @@ const Sourcing = () => {
     const delivery: Delivery = {
       id: crypto.randomUUID(),
       supplierId,
+      arrivalTime,
       weight: w,
       moisture: m,
       acidity: a,
+      inspectionStatus: "Pending",
       status: "Pending",
       batchId: null,
       date: new Date().toISOString(),
     };
 
     addDelivery(delivery);
-    toast.success(t("Delivery recorded", "บันทึกการจัดส่งแล้ว"));
+    toast.success(t("Delivery recorded by Procurement", "บันทึกการจัดส่งโดยฝ่ายจัดซื้อแล้ว"));
     setSupplierId("");
+    setArrivalTime("");
     setWeight("");
     setMoisture("");
     setAcidity("");
@@ -67,17 +71,17 @@ const Sourcing = () => {
           `ตรวจสอบคุณภาพไม่ผ่าน! ความชื้น: ${d.moisture.toFixed(2)}% (สูงสุด 14%), ความเป็นกรด: ${d.acidity.toFixed(2)} (สูงสุด 5)`
         )
       );
-      updateDelivery(id, { status: "Rejected" });
+      updateDelivery(id, { status: "Rejected", inspectionStatus: "Failed" });
       return;
     }
 
     const batchId = generateBatchId();
-    updateDelivery(id, { status: "Approved", batchId });
+    updateDelivery(id, { status: "Approved", inspectionStatus: "Inspected", batchId });
     toast.success(t(`Approved! Batch ID: ${batchId}`, `อนุมัติแล้ว! รหัสแบทช์: ${batchId}`));
   };
 
   const handleReject = (id: string) => {
-    updateDelivery(id, { status: "Rejected" });
+    updateDelivery(id, { status: "Rejected", inspectionStatus: "Failed" });
     toast.warning(t("Delivery rejected", "ปฏิเสธการจัดส่ง"));
   };
 
@@ -95,10 +99,14 @@ const Sourcing = () => {
           <CardTitle>{t("New Delivery", "การจัดส่งใหม่")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-2">
               <Label>{t("Supplier ID", "รหัสผู้จัดหา")}</Label>
               <Input value={supplierId} onChange={(e) => setSupplierId(e.target.value)} placeholder="SUP-001" />
+            </div>
+            <div className="space-y-2">
+              <Label>{t("Arrival Time", "เวลามาถึง")}</Label>
+              <Input type="datetime-local" value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>{t("Total Weight (kg)", "น้ำหนักรวม (กก.)")}</Label>
@@ -112,7 +120,7 @@ const Sourcing = () => {
               <Label>{t("Acidity Level", "ระดับความเป็นกรด")}</Label>
               <Input type="number" step="0.01" value={acidity} onChange={(e) => setAcidity(e.target.value)} placeholder="3.2" />
             </div>
-            <div className="sm:col-span-2 lg:col-span-4">
+            <div className="sm:col-span-2 lg:col-span-5">
               <Button type="submit">{t("Record Delivery", "บันทึกการจัดส่ง")}</Button>
             </div>
           </form>

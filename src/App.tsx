@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Sourcing from "./pages/Sourcing";
 import Production from "./pages/Production";
 import Logistics from "./pages/Logistics";
+import Warehouse from "./pages/Warehouse";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
                 <Route path="/sourcing" element={<Sourcing />} />
                 <Route path="/production" element={<Production />} />
                 <Route path="/logistics" element={<Logistics />} />
+                <Route path="/warehouse" element={<Warehouse />} />
+                <Route path="/feedback" element={<Feedback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </DashboardLayout>
