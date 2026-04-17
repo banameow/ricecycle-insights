@@ -26,8 +26,11 @@ const Logistics = () => {
   const [customerName, setCustomerName] = useState("");
   const [product, setProduct] = useState(PRODUCTS[0]);
   const [quantity, setQuantity] = useState("");
+  const [packagingSpec, setPackagingSpec] = useState("");
   const [certOpen, setCertOpen] = useState(false);
   const [certOrder, setCertOrder] = useState<Order | null>(null);
+
+  const defaultPackaging = (type: "B2B" | "B2C") => (type === "B2B" ? "Bulk 200L drum" : "Retail 1L bottle");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +52,7 @@ const Logistics = () => {
       customerName,
       product,
       quantity: qty,
+      packagingSpec: packagingSpec || defaultPackaging(customerType),
       status: "Pending",
       date: new Date().toISOString(),
     };
@@ -57,6 +61,7 @@ const Logistics = () => {
     toast.success(t(`Order ${order.id} created`, `สร้างคำสั่งซื้อ ${order.id} แล้ว`));
     setCustomerName("");
     setQuantity("");
+    setPackagingSpec("");
   };
 
   const handleStatusChange = (id: string, status: "Pending" | "Shipped" | "Delivered") => {
@@ -99,7 +104,7 @@ const Logistics = () => {
           <CardTitle>{t("Create Order", "สร้างคำสั่งซื้อ")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
             <div className="space-y-2">
               <Label>{t("Customer Type", "ประเภทลูกค้า")}</Label>
               <Select value={customerType} onValueChange={(v) => setCustomerType(v as "B2B" | "B2C")}>
@@ -127,6 +132,10 @@ const Logistics = () => {
               <Label>{t("Quantity", "จำนวน")}</Label>
               <Input type="number" step="0.01" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="100" />
             </div>
+            <div className="space-y-2">
+              <Label>{t("Packaging Spec", "บรรจุภัณฑ์")}</Label>
+              <Input value={packagingSpec} onChange={(e) => setPackagingSpec(e.target.value)} placeholder={defaultPackaging(customerType)} />
+            </div>
             <div className="flex items-end">
               <Button type="submit" className="w-full">{t("Create Order", "สร้างคำสั่งซื้อ")}</Button>
             </div>
@@ -151,6 +160,7 @@ const Logistics = () => {
                     <TableHead>{t("Customer", "ลูกค้า")}</TableHead>
                     <TableHead>{t("Product", "สินค้า")}</TableHead>
                     <TableHead>{t("Qty", "จำนวน")}</TableHead>
+                    <TableHead>{t("Packaging", "บรรจุภัณฑ์")}</TableHead>
                     <TableHead>{t("Status", "สถานะ")}</TableHead>
                     <TableHead>{t("Actions", "การดำเนินการ")}</TableHead>
                   </TableRow>
@@ -165,6 +175,7 @@ const Logistics = () => {
                       <TableCell>{o.customerName}</TableCell>
                       <TableCell>{o.product}</TableCell>
                       <TableCell>{o.quantity.toFixed(2)}</TableCell>
+                      <TableCell className="text-xs">{o.packagingSpec}</TableCell>
                       <TableCell>
                         <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v as Order["status"])}>
                           <SelectTrigger className="w-28 h-8">

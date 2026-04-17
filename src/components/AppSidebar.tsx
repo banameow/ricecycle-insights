@@ -1,4 +1,4 @@
-import { Wheat, Factory, Truck, LayoutDashboard } from "lucide-react";
+import { Wheat, Factory, Truck, LayoutDashboard, Warehouse, MessageSquare } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useLang } from "@/contexts/LanguageContext";
@@ -25,6 +25,8 @@ export function AppSidebar() {
     { title: t("Sourcing & Quality", "จัดหาและคุณภาพ"), url: "/sourcing", icon: Wheat },
     { title: t("Production", "การผลิต"), url: "/production", icon: Factory },
     { title: t("Orders & Logistics", "คำสั่งซื้อและโลจิสติกส์"), url: "/logistics", icon: Truck },
+    { title: t("Warehouse", "คลังสินค้า"), url: "/warehouse", icon: Warehouse },
+    { title: t("Customer Feedback", "ความคิดเห็นลูกค้า"), url: "/feedback", icon: MessageSquare },
   ];
 
   return (
