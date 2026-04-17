@@ -1,41 +1,25 @@
 import { useLang } from "@/contexts/LanguageContext";
 import { useData } from "@/contexts/DataContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wheat, Factory, Truck, Package } from "lucide-react";
+import { Wheat, Factory, Truck, Package, MessageSquare, AlertTriangle } from "lucide-react";
 
 const Index = () => {
   const { t } = useLang();
-  const { deliveries, productionLogs, orders, inventory } = useData();
+  const { deliveries, productionLogs, orders, inventory, feedback } = useData();
 
   const approvedDeliveries = deliveries.filter((d) => d.status === "Approved").length;
   const totalOilProduced = productionLogs.reduce((sum, p) => sum + p.crudeOilLiters, 0);
   const pendingOrders = orders.filter((o) => o.status === "Pending").length;
+  const openFeedback = feedback.filter((f) => !f.resolved).length;
+  const lowStock = [inventory.riceBranOil, inventory.bioFuel, inventory.organicFertilizer].filter((v) => v < 1000).length;
 
   const stats = [
-    {
-      title: t("Approved Deliveries", "การจัดส่งที่อนุมัติ"),
-      value: approvedDeliveries,
-      icon: Wheat,
-      color: "text-accent",
-    },
-    {
-      title: t("Crude Oil Produced (L)", "น้ำมันดิบที่ผลิต (ลิตร)"),
-      value: totalOilProduced.toFixed(2),
-      icon: Factory,
-      color: "text-primary",
-    },
-    {
-      title: t("Pending Orders", "คำสั่งซื้อที่รอดำเนินการ"),
-      value: pendingOrders,
-      icon: Truck,
-      color: "text-warning",
-    },
-    {
-      title: t("Oil Inventory (L)", "คลังน้ำมัน (ลิตร)"),
-      value: inventory.riceBranOil.toFixed(2),
-      icon: Package,
-      color: "text-primary",
-    },
+    { title: t("Approved Deliveries", "การจัดส่งที่อนุมัติ"), value: approvedDeliveries, icon: Wheat, color: "text-accent" },
+    { title: t("Crude Oil Produced (L)", "น้ำมันดิบที่ผลิต (ลิตร)"), value: totalOilProduced.toFixed(2), icon: Factory, color: "text-primary" },
+    { title: t("Pending Orders", "คำสั่งซื้อที่รอดำเนินการ"), value: pendingOrders, icon: Truck, color: "text-warning" },
+    { title: t("Oil Inventory (L)", "คลังน้ำมัน (ลิตร)"), value: inventory.riceBranOil.toFixed(2), icon: Package, color: "text-primary" },
+    { title: t("Open Feedback", "ความคิดเห็นที่เปิดอยู่"), value: openFeedback, icon: MessageSquare, color: "text-warning" },
+    { title: t("Low Stock Alerts", "แจ้งเตือนสต็อกต่ำ"), value: lowStock, icon: AlertTriangle, color: "text-destructive" },
   ];
 
   return (
@@ -47,7 +31,7 @@ const Index = () => {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {stats.map((s) => (
           <Card key={s.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
