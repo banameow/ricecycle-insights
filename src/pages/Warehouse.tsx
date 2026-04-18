@@ -23,21 +23,21 @@ const Warehouse = () => {
   const { inventory, adjustInventory, warehouseLogs } = useData();
 
   const [product, setProduct] = useState<"riceBranOil" | "bioFuel" | "organicFertilizer">("riceBranOil");
-  const [change, setChange] = useState("");
-  const [reason, setReason] = useState("");
-  const [operator, setOperator] = useState("");
+  const [direction, setDirection] = useState<"increase" | "decrease">("increase");
+  const [amount, setAmount] = useState("");
 
   const handleAdjust = (e: React.FormEvent) => {
     e.preventDefault();
-    const c = parseFloat(change);
-    if (isNaN(c) || !reason || !operator) {
-      toast.error(t("Please fill all fields", "กรุณากรอกข้อมูลให้ครบ"));
+    const a = parseFloat(amount);
+    if (isNaN(a) || a <= 0) {
+      toast.error(t("Please enter a valid amount", "กรุณากรอกจำนวนที่ถูกต้อง"));
       return;
     }
-    adjustInventory(product, c, reason, operator);
-    toast.success(t(`Inventory adjusted by ${c.toFixed(2)}`, `ปรับสินค้าคงคลัง ${c.toFixed(2)}`));
-    setChange("");
-    setReason("");
+    const change = direction === "increase" ? a : -a;
+    const reason = direction === "increase" ? "Manual increase" : "Manual decrease";
+    adjustInventory(product, change, reason, "Warehouse");
+    toast.success(t(`Inventory adjusted by ${change.toFixed(2)}`, `ปรับสินค้าคงคลัง ${change.toFixed(2)}`));
+    setAmount("");
   };
 
   return (
@@ -81,9 +81,9 @@ const Warehouse = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAdjust} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <form onSubmit={handleAdjust} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <Label>{t("Product", "สินค้า")}</Label>
+              <Label>{t("Product", "สินค้า")}<span className="text-destructive"> *</span></Label>
               <Select value={product} onValueChange={(v) => setProduct(v as typeof product)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -94,16 +94,29 @@ const Warehouse = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{t("Change (+/-)", "เปลี่ยนแปลง (+/-)")}</Label>
-              <Input type="number" step="0.01" value={change} onChange={(e) => setChange(e.target.value)} placeholder="-50.00" />
+              <Label>{t("Operation", "การดำเนินการ")}<span className="text-destructive"> *</span></Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={direction === "increase" ? "default" : "outline"}
+                  onClick={() => setDirection("increase")}
+                  className={direction === "increase" ? "bg-accent hover:bg-accent/90 text-accent-foreground" : ""}
+                >
+                  + {t("Increase", "เพิ่ม")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={direction === "decrease" ? "default" : "outline"}
+                  onClick={() => setDirection("decrease")}
+                  className={direction === "decrease" ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" : ""}
+                >
+                  − {t("Decrease", "ลด")}
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
-              <Label>{t("Reason", "เหตุผล")}</Label>
-              <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("Manual recount", "นับใหม่")} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Operator", "ผู้ดำเนินการ")}</Label>
-              <Input value={operator} onChange={(e) => setOperator(e.target.value)} placeholder="WH-01" />
+              <Label>{t("Amount", "จำนวน")}<span className="text-destructive"> *</span></Label>
+              <Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="50.00" />
             </div>
             <div className="flex items-end">
               <Button type="submit" className="w-full">{t("Adjust", "ปรับ")}</Button>

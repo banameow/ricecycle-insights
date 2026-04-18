@@ -146,7 +146,7 @@ const Production = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label>{t("Machine ID", "รหัสเครื่องจักร")}</Label>
+              <Label>{t("Machine ID", "รหัสเครื่องจักร")}<span className="text-destructive"> *</span></Label>
               <Select value={machineId} onValueChange={setMachineId}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -155,7 +155,7 @@ const Production = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{t("Batch ID", "รหัสแบทช์")}</Label>
+              <Label>{t("Batch ID", "รหัสแบทช์")}<span className="text-destructive"> *</span></Label>
               <Select value={batchId} onValueChange={setBatchId}>
                 <SelectTrigger><SelectValue placeholder={t("Select batch", "เลือกแบทช์")} /></SelectTrigger>
                 <SelectContent>
@@ -166,15 +166,15 @@ const Production = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{t("Start Time", "เวลาเริ่มต้น")}</Label>
+              <Label>{t("Start Time", "เวลาเริ่มต้น")}<span className="text-destructive"> *</span></Label>
               <Input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>{t("End Time", "เวลาสิ้นสุด")}</Label>
+              <Label>{t("End Time", "เวลาสิ้นสุด")}<span className="text-destructive"> *</span></Label>
               <Input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>{t("Temperature (°C)", "อุณหภูมิ (°C)")}</Label>
+              <Label>{t("Temperature (°C)", "อุณหภูมิ (°C)")}<span className="text-destructive"> *</span></Label>
               <Input
                 type="number"
                 step="0.1"
@@ -184,7 +184,7 @@ const Production = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>{t("Pressure (bar)", "ความดัน (bar)")}</Label>
+              <Label>{t("Pressure (bar)", "ความดัน (bar)")}<span className="text-destructive"> *</span></Label>
               <Input
                 type="number"
                 step="0.01"

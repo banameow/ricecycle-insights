@@ -105,15 +105,15 @@ const Sourcing = () => {
           <CardContent>
             <form onSubmit={handleSubmit} id="delivery-form" className="grid gap-4">
               <div className="space-y-2">
-                <Label>{t("Supplier ID", "รหัสผู้จัดหา")}</Label>
+                <Label>{t("Supplier ID", "รหัสผู้จัดหา")}<span className="text-destructive"> *</span></Label>
                 <Input value={supplierId} onChange={(e) => setSupplierId(e.target.value)} placeholder="SUP-001" />
               </div>
               <div className="space-y-2">
-                <Label>{t("Arrive Time", "เวลามาถึง")}</Label>
+                <Label>{t("Arrive Time", "เวลามาถึง")}<span className="text-destructive"> *</span></Label>
                 <Input type="datetime-local" value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>{t("Rice Weight (kg)", "น้ำหนักข้าว (กก.)")}</Label>
+                <Label>{t("Rice Weight (kg)", "น้ำหนักข้าว (กก.)")}<span className="text-destructive"> *</span></Label>
                 <Input type="number" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="1000" />
               </div>
             </form>
@@ -130,12 +130,12 @@ const Sourcing = () => {
           <CardContent>
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label>{t("Moisture %", "ความชื้น %")}</Label>
+                <Label>{t("Moisture %", "ความชื้น %")}<span className="text-destructive"> *</span></Label>
                 <Input type="number" step="0.01" value={moisture} onChange={(e) => setMoisture(e.target.value)} placeholder="12.5" form="delivery-form" />
                 <p className="text-xs text-muted-foreground">{t("Threshold: ≤ 14%", "เกณฑ์: ≤ 14%")}</p>
               </div>
               <div className="space-y-2">
-                <Label>{t("Acidity Level", "ระดับความเป็นกรด")}</Label>
+                <Label>{t("Acidity Level", "ระดับความเป็นกรด")}<span className="text-destructive"> *</span></Label>
                 <Input type="number" step="0.01" value={acidity} onChange={(e) => setAcidity(e.target.value)} placeholder="3.2" form="delivery-form" />
                 <p className="text-xs text-muted-foreground">{t("Threshold: ≤ 5", "เกณฑ์: ≤ 5")}</p>
               </div>
