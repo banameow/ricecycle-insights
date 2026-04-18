@@ -248,6 +248,10 @@ const Logistics = () => {
                   <p className="font-mono font-medium">{certOrder.id}</p>
                 </div>
                 <div>
+                  <p className="text-muted-foreground">{t("Certificate Ref.", "เลขใบรับรอง")}</p>
+                  <p className="font-mono font-medium">{certOrder.qualityCertificate || "—"}</p>
+                </div>
+                <div>
                   <p className="text-muted-foreground">{t("Date", "วันที่")}</p>
                   <p className="font-medium">{new Date(certOrder.date).toLocaleDateString()}</p>
                 </div>
