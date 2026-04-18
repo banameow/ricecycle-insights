@@ -21,10 +21,8 @@ const Production = () => {
   const [batchId, setBatchId] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [temperature, setTemperature] = useState("");
-  const [pressure, setPressure] = useState("");
 
-  // Simulated live data (reference readings shown on dashboard cards)
+  // Simulated live data (auto-logged by the system)
   const [liveTemp, setLiveTemp] = useState(165);
   const [livePressure, setLivePressure] = useState(4.2);
 
@@ -38,12 +36,13 @@ const Production = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const temp = parseFloat(temperature);
-    const pres = parseFloat(pressure);
-    if (!batchId || !startTime || !endTime || isNaN(temp) || isNaN(pres)) {
+    if (!batchId || !startTime || !endTime) {
       toast.error(t("Please fill all fields", "กรุณากรอกข้อมูลให้ครบ"));
       return;
     }
+    // Auto-captured environmental readings from live sensors
+    const temp = liveTemp;
+    const pres = livePressure;
 
     const batch = approvedBatches.find((d) => d.batchId === batchId);
     if (!batch) {
@@ -90,8 +89,6 @@ const Production = () => {
     setBatchId("");
     setStartTime("");
     setEndTime("");
-    setTemperature("");
-    setPressure("");
   };
 
   return (
@@ -138,8 +135,8 @@ const Production = () => {
           <CardTitle>{t("Log Extraction (Technician Input)", "บันทึกการสกัด (ข้อมูลจากช่างเทคนิค)")}</CardTitle>
           <p className="text-xs text-muted-foreground">
             {t(
-              "Machine ID, Start/End Times, Temperature & Pressure recorded during the run.",
-              "รหัสเครื่องจักร, เวลาเริ่ม/สิ้นสุด, อุณหภูมิและความดันที่บันทึกระหว่างการทำงาน"
+              "Technician enters Machine ID and Start/End Times. Temperature & Pressure are auto-logged from live sensors.",
+              "ช่างเทคนิคกรอกรหัสเครื่องจักรและเวลาเริ่ม/สิ้นสุด อุณหภูมิและความดันถูกบันทึกอัตโนมัติจากเซ็นเซอร์"
             )}
           </p>
         </CardHeader>
@@ -172,26 +169,6 @@ const Production = () => {
             <div className="space-y-2">
               <Label>{t("End Time", "เวลาสิ้นสุด")}<span className="text-destructive"> *</span></Label>
               <Input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Temperature (°C)", "อุณหภูมิ (°C)")}<span className="text-destructive"> *</span></Label>
-              <Input
-                type="number"
-                step="0.1"
-                value={temperature}
-                onChange={(e) => setTemperature(e.target.value)}
-                placeholder={liveTemp.toFixed(1)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Pressure (bar)", "ความดัน (bar)")}<span className="text-destructive"> *</span></Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={pressure}
-                onChange={(e) => setPressure(e.target.value)}
-                placeholder={livePressure.toFixed(2)}
-              />
             </div>
             <div className="sm:col-span-2 lg:col-span-3">
               <Button type="submit">{t("Log Production", "บันทึกการผลิต")}</Button>
