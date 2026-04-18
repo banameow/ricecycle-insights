@@ -185,6 +185,7 @@ const Logistics = () => {
                     <TableHead>{t("Product", "สินค้า")}</TableHead>
                     <TableHead>{t("Qty", "จำนวน")}</TableHead>
                     <TableHead>{t("Packaging", "บรรจุภัณฑ์")}</TableHead>
+                    <TableHead>{t("Quality Cert.", "ใบรับรอง")}</TableHead>
                     <TableHead>{t("Status", "สถานะ")}</TableHead>
                     <TableHead>{t("Actions", "การดำเนินการ")}</TableHead>
                   </TableRow>
@@ -200,6 +201,7 @@ const Logistics = () => {
                       <TableCell>{o.product}</TableCell>
                       <TableCell>{o.quantity.toFixed(2)}</TableCell>
                       <TableCell className="text-xs">{o.packagingSpec}</TableCell>
+                      <TableCell className="font-mono text-xs">{o.qualityCertificate || "—"}</TableCell>
                       <TableCell>
                         <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v as Order["status"])}>
                           <SelectTrigger className="w-28 h-8">
