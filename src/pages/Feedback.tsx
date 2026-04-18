@@ -85,7 +85,7 @@ const Feedback = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>{t("Customer Name", "ชื่อลูกค้า")}</Label>
+              <Label>{t("Customer Name", "ชื่อลูกค้า")}<span className="text-destructive"> *</span></Label>
               <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
             </div>
             <div className="space-y-2">
@@ -111,7 +111,7 @@ const Feedback = () => {
               </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label>{t("Comment", "ความคิดเห็น")}</Label>
+              <Label>{t("Comment", "ความคิดเห็น")}<span className="text-destructive"> *</span></Label>
               <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
             </div>
             <div className="sm:col-span-2">
