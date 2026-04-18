@@ -21,8 +21,10 @@ const Production = () => {
   const [batchId, setBatchId] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [temperature, setTemperature] = useState("");
+  const [pressure, setPressure] = useState("");
 
-  // Simulated live data
+  // Simulated live data (reference readings shown on dashboard cards)
   const [liveTemp, setLiveTemp] = useState(165);
   const [livePressure, setLivePressure] = useState(4.2);
 
@@ -36,7 +38,9 @@ const Production = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!batchId || !startTime || !endTime) {
+    const temp = parseFloat(temperature);
+    const pres = parseFloat(pressure);
+    if (!batchId || !startTime || !endTime || isNaN(temp) || isNaN(pres)) {
       toast.error(t("Please fill all fields", "กรุณากรอกข้อมูลให้ครบ"));
       return;
     }
@@ -71,16 +75,23 @@ const Production = () => {
       startTime,
       endTime,
       efficiency,
-      temperature: liveTemp,
-      pressure: livePressure,
+      temperature: temp,
+      pressure: pres,
       date: new Date().toISOString(),
     };
 
     addProductionLog(log);
-    toast.success(t(`Production logged: ${crudeOilLiters.toFixed(2)}L oil`, `บันทึกการผลิต: ${crudeOilLiters.toFixed(2)} ลิตร`));
+    toast.success(
+      t(
+        `Logged: ${crudeOilLiters.toFixed(2)} L oil, ${residualBiomass.toFixed(2)} kg biomass`,
+        `บันทึก: น้ำมัน ${crudeOilLiters.toFixed(2)} ลิตร, ชีวมวล ${residualBiomass.toFixed(2)} กก.`
+      )
+    );
     setBatchId("");
     setStartTime("");
     setEndTime("");
+    setTemperature("");
+    setPressure("");
   };
 
   return (
@@ -124,10 +135,16 @@ const Production = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("Log Extraction", "บันทึกการสกัด")}</CardTitle>
+          <CardTitle>{t("Log Extraction (Technician Input)", "บันทึกการสกัด (ข้อมูลจากช่างเทคนิค)")}</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {t(
+              "Machine ID, Start/End Times, Temperature & Pressure recorded during the run.",
+              "รหัสเครื่องจักร, เวลาเริ่ม/สิ้นสุด, อุณหภูมิและความดันที่บันทึกระหว่างการทำงาน"
+            )}
+          </p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label>{t("Machine ID", "รหัสเครื่องจักร")}</Label>
               <Select value={machineId} onValueChange={setMachineId}>
@@ -156,8 +173,34 @@ const Production = () => {
               <Label>{t("End Time", "เวลาสิ้นสุด")}</Label>
               <Input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             </div>
-            <div className="sm:col-span-2 lg:col-span-4">
+            <div className="space-y-2">
+              <Label>{t("Temperature (°C)", "อุณหภูมิ (°C)")}</Label>
+              <Input
+                type="number"
+                step="0.1"
+                value={temperature}
+                onChange={(e) => setTemperature(e.target.value)}
+                placeholder={liveTemp.toFixed(1)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t("Pressure (bar)", "ความดัน (bar)")}</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={pressure}
+                onChange={(e) => setPressure(e.target.value)}
+                placeholder={livePressure.toFixed(2)}
+              />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
               <Button type="submit">{t("Log Production", "บันทึกการผลิต")}</Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                {t(
+                  "System will calculate Oil Volume (L) = weight × 0.18 and Residual Biomass (kg) = weight × 0.82.",
+                  "ระบบจะคำนวณปริมาณน้ำมัน (ลิตร) = น้ำหนัก × 0.18 และชีวมวลเหลือ (กก.) = น้ำหนัก × 0.82"
+                )}
+              </p>
             </div>
           </form>
         </CardContent>

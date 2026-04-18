@@ -27,6 +27,7 @@ const Logistics = () => {
   const [product, setProduct] = useState(PRODUCTS[0]);
   const [quantity, setQuantity] = useState("");
   const [packagingSpec, setPackagingSpec] = useState("");
+  const [qualityCertificate, setQualityCertificate] = useState("");
   const [certOpen, setCertOpen] = useState(false);
   const [certOrder, setCertOrder] = useState<Order | null>(null);
 
@@ -37,6 +38,10 @@ const Logistics = () => {
     const qty = parseFloat(quantity);
     if (!customerName || isNaN(qty) || qty <= 0) {
       toast.error(t("Please fill all fields correctly", "กรุณากรอกข้อมูลให้ครบถ้วน"));
+      return;
+    }
+    if (customerType === "B2B" && !qualityCertificate.trim()) {
+      toast.error(t("B2B orders require a Quality Certificate reference", "คำสั่งซื้อ B2B ต้องระบุเลขใบรับรองคุณภาพ"));
       return;
     }
 
@@ -53,6 +58,7 @@ const Logistics = () => {
       product,
       quantity: qty,
       packagingSpec: packagingSpec || defaultPackaging(customerType),
+      qualityCertificate: qualityCertificate.trim() || "—",
       status: "Pending",
       date: new Date().toISOString(),
     };
@@ -62,6 +68,7 @@ const Logistics = () => {
     setCustomerName("");
     setQuantity("");
     setPackagingSpec("");
+    setQualityCertificate("");
   };
 
   const handleStatusChange = (id: string, status: "Pending" | "Shipped" | "Delivered") => {
@@ -104,7 +111,7 @@ const Logistics = () => {
           <CardTitle>{t("Create Order", "สร้างคำสั่งซื้อ")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label>{t("Customer Type", "ประเภทลูกค้า")}</Label>
               <Select value={customerType} onValueChange={(v) => setCustomerType(v as "B2B" | "B2C")}>
@@ -120,7 +127,7 @@ const Logistics = () => {
               <Input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder={t("Hospital/Company", "โรงพยาบาล/บริษัท")} />
             </div>
             <div className="space-y-2">
-              <Label>{t("Product", "สินค้า")}</Label>
+              <Label>{t("Product Type", "ประเภทสินค้า")}</Label>
               <Select value={product} onValueChange={setProduct}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -129,15 +136,32 @@ const Logistics = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{t("Quantity", "จำนวน")}</Label>
+              <Label>{t("Order Quantity", "จำนวนสั่งซื้อ")}</Label>
               <Input type="number" step="0.01" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="100" />
             </div>
             <div className="space-y-2">
               <Label>{t("Packaging Spec", "บรรจุภัณฑ์")}</Label>
               <Input value={packagingSpec} onChange={(e) => setPackagingSpec(e.target.value)} placeholder={defaultPackaging(customerType)} />
             </div>
-            <div className="flex items-end">
-              <Button type="submit" className="w-full">{t("Create Order", "สร้างคำสั่งซื้อ")}</Button>
+            <div className="space-y-2">
+              <Label>
+                {t("Quality Certificate", "ใบรับรองคุณภาพ")}
+                {customerType === "B2B" && <span className="text-destructive"> *</span>}
+              </Label>
+              <Input
+                value={qualityCertificate}
+                onChange={(e) => setQualityCertificate(e.target.value)}
+                placeholder={customerType === "B2B" ? "QC-2024-001" : t("Optional", "ไม่บังคับ")}
+              />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <Button type="submit" className="w-full sm:w-auto">{t("Create Order", "สร้างคำสั่งซื้อ")}</Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                {t(
+                  "System returns Order ID, current Inventory Level, and Delivery Status.",
+                  "ระบบจะส่งคืนรหัสคำสั่งซื้อ, ระดับสินค้าคงคลังปัจจุบัน และสถานะการจัดส่ง"
+                )}
+              </p>
             </div>
           </form>
         </CardContent>
@@ -161,6 +185,7 @@ const Logistics = () => {
                     <TableHead>{t("Product", "สินค้า")}</TableHead>
                     <TableHead>{t("Qty", "จำนวน")}</TableHead>
                     <TableHead>{t("Packaging", "บรรจุภัณฑ์")}</TableHead>
+                    <TableHead>{t("Quality Cert.", "ใบรับรอง")}</TableHead>
                     <TableHead>{t("Status", "สถานะ")}</TableHead>
                     <TableHead>{t("Actions", "การดำเนินการ")}</TableHead>
                   </TableRow>
@@ -176,6 +201,7 @@ const Logistics = () => {
                       <TableCell>{o.product}</TableCell>
                       <TableCell>{o.quantity.toFixed(2)}</TableCell>
                       <TableCell className="text-xs">{o.packagingSpec}</TableCell>
+                      <TableCell className="font-mono text-xs">{o.qualityCertificate || "—"}</TableCell>
                       <TableCell>
                         <Select value={o.status} onValueChange={(v) => handleStatusChange(o.id, v as Order["status"])}>
                           <SelectTrigger className="w-28 h-8">
@@ -220,6 +246,10 @@ const Logistics = () => {
                 <div>
                   <p className="text-muted-foreground">{t("Order ID", "รหัสคำสั่งซื้อ")}</p>
                   <p className="font-mono font-medium">{certOrder.id}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t("Certificate Ref.", "เลขใบรับรอง")}</p>
+                  <p className="font-mono font-medium">{certOrder.qualityCertificate || "—"}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">{t("Date", "วันที่")}</p>

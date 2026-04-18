@@ -35,6 +35,7 @@ export interface Order {
   product: string;
   quantity: number;
   packagingSpec: string;
+  qualityCertificate: string;
   status: "Pending" | "Shipped" | "Delivered";
   date: string;
 }
