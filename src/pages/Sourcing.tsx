@@ -94,38 +94,64 @@ const Sourcing = () => {
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("New Delivery", "การจัดส่งใหม่")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="space-y-2">
-              <Label>{t("Supplier ID", "รหัสผู้จัดหา")}</Label>
-              <Input value={supplierId} onChange={(e) => setSupplierId(e.target.value)} placeholder="SUP-001" />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("Procurement Officer Input", "ข้อมูลจากฝ่ายจัดซื้อ")}</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              {t("Supplier ID, Arrive Time, Rice Weight (kg)", "รหัสผู้จัดหา, เวลามาถึง, น้ำหนักข้าว (กก.)")}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} id="delivery-form" className="grid gap-4">
+              <div className="space-y-2">
+                <Label>{t("Supplier ID", "รหัสผู้จัดหา")}</Label>
+                <Input value={supplierId} onChange={(e) => setSupplierId(e.target.value)} placeholder="SUP-001" />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("Arrive Time", "เวลามาถึง")}</Label>
+                <Input type="datetime-local" value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("Rice Weight (kg)", "น้ำหนักข้าว (กก.)")}</Label>
+                <Input type="number" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="1000" />
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("Quality Control Staff Input", "ข้อมูลจากเจ้าหน้าที่ควบคุมคุณภาพ")}</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              {t("Quality Metrics: Moisture %, Acidity Level", "ค่าคุณภาพ: ความชื้น %, ระดับความเป็นกรด")}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label>{t("Moisture %", "ความชื้น %")}</Label>
+                <Input type="number" step="0.01" value={moisture} onChange={(e) => setMoisture(e.target.value)} placeholder="12.5" form="delivery-form" />
+                <p className="text-xs text-muted-foreground">{t("Threshold: ≤ 14%", "เกณฑ์: ≤ 14%")}</p>
+              </div>
+              <div className="space-y-2">
+                <Label>{t("Acidity Level", "ระดับความเป็นกรด")}</Label>
+                <Input type="number" step="0.01" value={acidity} onChange={(e) => setAcidity(e.target.value)} placeholder="3.2" form="delivery-form" />
+                <p className="text-xs text-muted-foreground">{t("Threshold: ≤ 5", "เกณฑ์: ≤ 5")}</p>
+              </div>
+              <Button type="submit" form="delivery-form" className="w-full">
+                {t("Record Delivery & Run Inspection", "บันทึกการจัดส่งและตรวจสอบ")}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                {t(
+                  "System will issue a Verified Batch ID and Inspection Status (Approved/Rejected) after review below.",
+                  "ระบบจะออกรหัสแบทช์และสถานะการตรวจสอบหลังการพิจารณาด้านล่าง"
+                )}
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label>{t("Arrival Time", "เวลามาถึง")}</Label>
-              <Input type="datetime-local" value={arrivalTime} onChange={(e) => setArrivalTime(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Total Weight (kg)", "น้ำหนักรวม (กก.)")}</Label>
-              <Input type="number" step="0.01" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="1000" />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Moisture %", "ความชื้น %")}</Label>
-              <Input type="number" step="0.01" value={moisture} onChange={(e) => setMoisture(e.target.value)} placeholder="12.5" />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Acidity Level", "ระดับความเป็นกรด")}</Label>
-              <Input type="number" step="0.01" value={acidity} onChange={(e) => setAcidity(e.target.value)} placeholder="3.2" />
-            </div>
-            <div className="sm:col-span-2 lg:col-span-5">
-              <Button type="submit">{t("Record Delivery", "บันทึกการจัดส่ง")}</Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>
