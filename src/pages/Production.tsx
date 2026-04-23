@@ -141,24 +141,36 @@ const Production = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className={tempOutOfRange ? "border-destructive" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{t("Temperature", "อุณหภูมิ")}</CardTitle>
-            <Thermometer className="h-5 w-5 text-destructive" />
+            <Thermometer className={`h-5 w-5 ${tempOutOfRange ? "text-destructive animate-pulse" : "text-destructive"}`} />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{liveTemp.toFixed(1)}°C</p>
+            <p className={`text-2xl font-bold ${tempOutOfRange ? "text-destructive" : ""}`}>{liveTemp.toFixed(1)}°C</p>
             <p className="text-xs text-muted-foreground">{t("Target: 160-180°C", "เป้าหมาย: 160-180°C")}</p>
+            {tempOutOfRange && (
+              <p className="text-xs text-destructive font-medium mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                {t("Out of range!", "เกินช่วงมาตรฐาน!")}
+              </p>
+            )}
           </CardContent>
         </Card>
-        <Card>
+        <Card className={presOutOfRange ? "border-destructive" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{t("Pressure", "ความดัน")}</CardTitle>
-            <Gauge className="h-5 w-5 text-primary" />
+            <Gauge className={`h-5 w-5 ${presOutOfRange ? "text-destructive animate-pulse" : "text-primary"}`} />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{livePressure.toFixed(2)} bar</p>
+            <p className={`text-2xl font-bold ${presOutOfRange ? "text-destructive" : ""}`}>{livePressure.toFixed(2)} bar</p>
             <p className="text-xs text-muted-foreground">{t("Target: 3.5-5.0 bar", "เป้าหมาย: 3.5-5.0 bar")}</p>
+            {presOutOfRange && (
+              <p className="text-xs text-destructive font-medium mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                {t("Out of range!", "เกินช่วงมาตรฐาน!")}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -171,6 +183,32 @@ const Production = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("Sensor Simulation (Testing)", "จำลองเซ็นเซอร์ (ทดสอบ)")}</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {t(
+              "Trigger out-of-range readings to test alerts. Live values resume after ~6 seconds.",
+              "จำลองค่าที่เกินมาตรฐานเพื่อทดสอบการแจ้งเตือน ค่าจะกลับสู่ปกติใน ~6 วินาที"
+            )}
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => simulateTempSpike(true)}>
+            🔥 {t("Spike Temp High (195°C)", "อุณหภูมิสูง (195°C)")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => simulateTempSpike(false)}>
+            ❄️ {t("Drop Temp Low (152°C)", "อุณหภูมิต่ำ (152°C)")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => simulatePressureSpike(true)}>
+            ⬆️ {t("Spike Pressure High (5.8 bar)", "ความดันสูง (5.8 bar)")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => simulatePressureSpike(false)}>
+            ⬇️ {t("Drop Pressure Low (3.1 bar)", "ความดันต่ำ (3.1 bar)")}
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
