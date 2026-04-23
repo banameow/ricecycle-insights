@@ -31,13 +31,50 @@ const Production = () => {
   const [liveTemp, setLiveTemp] = useState(165);
   const [livePressure, setLivePressure] = useState(4.2);
 
+  // Simulation overrides force a value for ~6 seconds, then live drift resumes
+  const [tempOverride, setTempOverride] = useState<number | null>(null);
+  const [presOverride, setPresOverride] = useState<number | null>(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveTemp((prev) => Math.max(150, Math.min(200, prev + (Math.random() - 0.5) * 5)));
-      setLivePressure((prev) => Math.max(3, Math.min(6, prev + (Math.random() - 0.5) * 0.4)));
+      if (tempOverride === null) {
+        setLiveTemp((prev) => Math.max(150, Math.min(200, prev + (Math.random() - 0.5) * 5)));
+      }
+      if (presOverride === null) {
+        setLivePressure((prev) => Math.max(3, Math.min(6, prev + (Math.random() - 0.5) * 0.4)));
+      }
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tempOverride, presOverride]);
+
+  const tempOutOfRange = liveTemp < TEMP_MIN || liveTemp > TEMP_MAX;
+  const presOutOfRange = livePressure < PRES_MIN || livePressure > PRES_MAX;
+
+  const simulateTempSpike = (high: boolean) => {
+    const value = high ? 195 : 152;
+    setLiveTemp(value);
+    setTempOverride(value);
+    toast.warning(
+      t(
+        `Simulated ${high ? "high" : "low"} temperature: ${value}°C`,
+        `จำลองอุณหภูมิ${high ? "สูง" : "ต่ำ"}: ${value}°C`
+      )
+    );
+    setTimeout(() => setTempOverride(null), 6000);
+  };
+
+  const simulatePressureSpike = (high: boolean) => {
+    const value = high ? 5.8 : 3.1;
+    setLivePressure(value);
+    setPresOverride(value);
+    toast.warning(
+      t(
+        `Simulated ${high ? "high" : "low"} pressure: ${value} bar`,
+        `จำลองความดัน${high ? "สูง" : "ต่ำ"}: ${value} bar`
+      )
+    );
+    setTimeout(() => setPresOverride(null), 6000);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
