@@ -8,7 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Thermometer, Gauge, Zap } from "lucide-react";
+import { Thermometer, Gauge, Zap, AlertTriangle } from "lucide-react";
+
+const TEMP_MIN = 160;
+const TEMP_MAX = 180;
+const PRES_MIN = 3.5;
+const PRES_MAX = 5.0;
 
 const MACHINES = ["MCH-001", "MCH-002", "MCH-003"];
 
