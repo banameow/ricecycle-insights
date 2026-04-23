@@ -8,7 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Thermometer, Gauge, Zap } from "lucide-react";
+import { Thermometer, Gauge, Zap, AlertTriangle } from "lucide-react";
+
+const TEMP_MIN = 160;
+const TEMP_MAX = 180;
+const PRES_MIN = 3.5;
+const PRES_MAX = 5.0;
 
 const MACHINES = ["MCH-001", "MCH-002", "MCH-003"];
 
@@ -26,13 +31,50 @@ const Production = () => {
   const [liveTemp, setLiveTemp] = useState(165);
   const [livePressure, setLivePressure] = useState(4.2);
 
+  // Simulation overrides force a value for ~6 seconds, then live drift resumes
+  const [tempOverride, setTempOverride] = useState<number | null>(null);
+  const [presOverride, setPresOverride] = useState<number | null>(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveTemp((prev) => Math.max(150, Math.min(200, prev + (Math.random() - 0.5) * 5)));
-      setLivePressure((prev) => Math.max(3, Math.min(6, prev + (Math.random() - 0.5) * 0.4)));
+      if (tempOverride === null) {
+        setLiveTemp((prev) => Math.max(150, Math.min(200, prev + (Math.random() - 0.5) * 5)));
+      }
+      if (presOverride === null) {
+        setLivePressure((prev) => Math.max(3, Math.min(6, prev + (Math.random() - 0.5) * 0.4)));
+      }
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tempOverride, presOverride]);
+
+  const tempOutOfRange = liveTemp < TEMP_MIN || liveTemp > TEMP_MAX;
+  const presOutOfRange = livePressure < PRES_MIN || livePressure > PRES_MAX;
+
+  const simulateTempSpike = (high: boolean) => {
+    const value = high ? 195 : 152;
+    setLiveTemp(value);
+    setTempOverride(value);
+    toast.warning(
+      t(
+        `Simulated ${high ? "high" : "low"} temperature: ${value}°C`,
+        `จำลองอุณหภูมิ${high ? "สูง" : "ต่ำ"}: ${value}°C`
+      )
+    );
+    setTimeout(() => setTempOverride(null), 6000);
+  };
+
+  const simulatePressureSpike = (high: boolean) => {
+    const value = high ? 5.8 : 3.1;
+    setLivePressure(value);
+    setPresOverride(value);
+    toast.warning(
+      t(
+        `Simulated ${high ? "high" : "low"} pressure: ${value} bar`,
+        `จำลองความดัน${high ? "สูง" : "ต่ำ"}: ${value} bar`
+      )
+    );
+    setTimeout(() => setPresOverride(null), 6000);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,24 +141,36 @@ const Production = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
+        <Card className={tempOutOfRange ? "border-destructive" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{t("Temperature", "อุณหภูมิ")}</CardTitle>
-            <Thermometer className="h-5 w-5 text-destructive" />
+            <Thermometer className={`h-5 w-5 ${tempOutOfRange ? "text-destructive animate-pulse" : "text-destructive"}`} />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{liveTemp.toFixed(1)}°C</p>
+            <p className={`text-2xl font-bold ${tempOutOfRange ? "text-destructive" : ""}`}>{liveTemp.toFixed(1)}°C</p>
             <p className="text-xs text-muted-foreground">{t("Target: 160-180°C", "เป้าหมาย: 160-180°C")}</p>
+            {tempOutOfRange && (
+              <p className="text-xs text-destructive font-medium mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                {t("Out of range!", "เกินช่วงมาตรฐาน!")}
+              </p>
+            )}
           </CardContent>
         </Card>
-        <Card>
+        <Card className={presOutOfRange ? "border-destructive" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{t("Pressure", "ความดัน")}</CardTitle>
-            <Gauge className="h-5 w-5 text-primary" />
+            <Gauge className={`h-5 w-5 ${presOutOfRange ? "text-destructive animate-pulse" : "text-primary"}`} />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{livePressure.toFixed(2)} bar</p>
+            <p className={`text-2xl font-bold ${presOutOfRange ? "text-destructive" : ""}`}>{livePressure.toFixed(2)} bar</p>
             <p className="text-xs text-muted-foreground">{t("Target: 3.5-5.0 bar", "เป้าหมาย: 3.5-5.0 bar")}</p>
+            {presOutOfRange && (
+              <p className="text-xs text-destructive font-medium mt-1 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                {t("Out of range!", "เกินช่วงมาตรฐาน!")}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -129,6 +183,32 @@ const Production = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("Sensor Simulation (Testing)", "จำลองเซ็นเซอร์ (ทดสอบ)")}</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {t(
+              "Trigger out-of-range readings to test alerts. Live values resume after ~6 seconds.",
+              "จำลองค่าที่เกินมาตรฐานเพื่อทดสอบการแจ้งเตือน ค่าจะกลับสู่ปกติใน ~6 วินาที"
+            )}
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => simulateTempSpike(true)}>
+            🔥 {t("Spike Temp High (195°C)", "อุณหภูมิสูง (195°C)")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => simulateTempSpike(false)}>
+            ❄️ {t("Drop Temp Low (152°C)", "อุณหภูมิต่ำ (152°C)")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => simulatePressureSpike(true)}>
+            ⬆️ {t("Spike Pressure High (5.8 bar)", "ความดันสูง (5.8 bar)")}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => simulatePressureSpike(false)}>
+            ⬇️ {t("Drop Pressure Low (3.1 bar)", "ความดันต่ำ (3.1 bar)")}
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
